@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⭐ Star 解锁 · HOMO 专属工具包</title>
+<meta name="description" content="给 HOMO 开源项目点 Star，解锁独家数据/工具/模板">
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --border: #334155;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --blue: #60a5fa;
+  --green: #34d399;
+  --gold: #fbbf24;
+  --red: #f87171;
+  --purple: #a78bfa;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+  min-height: 100vh;
+}
+.container { max-width: 780px; margin: 0 auto; padding: 2rem 1rem; }
+
+/* Header */
+header { text-align: center; padding: 3rem 0 2rem; }
+header h1 { font-size: 2.5rem; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .5rem; }
+header p { color: var(--muted); font-size: 1rem; }
+header .stats { margin-top: 1rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+header .stats span { background: var(--card); padding: .4rem 1rem; border-radius: 20px; border: 1px solid var(--border); font-size: .85rem; color: var(--muted); }
+header .stats strong { color: var(--gold); }
+
+/* Card */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; }
+
+/* Step indicator */
+.steps { display: flex; justify-content: space-between; margin: 1.5rem 0; position: relative; }
+.steps::before { content: ''; position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: var(--border); z-index: 0; }
+.step { display: flex; flex-direction: column; align-items: center; gap: .5rem; position: relative; z-index: 1; width: 33%; }
+.step .num { width: 30px; height: 30px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; color: var(--muted); transition: all .3s; }
+.step.active .num { background: var(--blue); color: white; box-shadow: 0 0 15px rgba(96,165,250,.4); }
+.step.done .num { background: var(--green); color: white; }
+.step .label { font-size: .8rem; color: var(--muted); }
+.step.active .label { color: var(--blue); }
+.step.done .label { color: var(--green); }
+
+/* Form */
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-weight: 600; margin-bottom: .5rem; font-size: .9rem; color: var(--muted); }
+select, input[type="text"] {
+  width: 100%; padding: .8rem 1rem; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text); font-size: 1rem; transition: border .2s;
+}
+select:focus, input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(96,165,250,.15); }
+select option { background: var(--card); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem; padding: .8rem 2rem;
+  border-radius: 10px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer;
+  transition: all .2s; text-decoration: none;
+}
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: #3b82f6; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn-gold { background: var(--gold); color: #1e293b; }
+.btn-gold:hover { background: #f59e0b; transform: translateY(-1px); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+.btn-block { width: 100%; justify-content: center; }
+
+/* Status */
+.status { display: none; text-align: center; padding: 2rem; border-radius: 12px; margin: 1rem 0; }
+.status.show { display: block; }
+.status.loading { background: rgba(96,165,250,.1); border: 1px solid rgba(96,165,250,.2); }
+.status.success { background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.2); }
+.status.error { background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.2); }
+.status .icon { font-size: 3rem; margin-bottom: .5rem; }
+.status h3 { margin-bottom: .5rem; }
+.status p { color: var(--muted); font-size: .9rem; }
+
+/* Unlock content */
+.unlock-content { display: none; }
+.unlock-content.show { display: block; }
+.unlock-content pre {
+  background: #1a1a2e; padding: 1.5rem; border-radius: 10px; overflow-x: auto;
+  font-size: .85rem; line-height: 1.4; margin: 1rem 0; border: 1px solid var(--border);
+  max-height: 400px; overflow-y: auto;
+}
+.unlock-content .download-btn { margin-top: .5rem; }
+
+/* Repo info */
+.repo-info { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg); border-radius: 10px; margin-bottom: 1rem; }
+.repo-info .avatar { width: 48px; height: 48px; border-radius: 8px; }
+.repo-info .name { font-size: 1.1rem; font-weight: 600; }
+.repo-info .stars { color: var(--gold); font-size: .85rem; }
+
+/* Guide box */
+.guide-box { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.2); border-radius: 12px; padding: 1.5rem; text-align: center; margin: 1rem 0; }
+.guide-box h3 { color: var(--gold); margin-bottom: .5rem; }
+.guide-box p { color: var(--muted); font-size: .9rem; margin-bottom: 1rem; }
+
+/* Footer */
+footer { text-align: center; padding: 2rem; color: #475569; font-size: .8rem; }
+
+/* Animation */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn .4s ease; }
+
+/* Repo tags */
+.tags { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; }
+.tag { padding: .15rem .6rem; border-radius: 12px; font-size: .75rem; background: rgba(96,165,250,.12); color: var(--blue); }
+.tag.ecom { background: rgba(251,191,36,.12); color: var(--gold); }
+.tag.sec { background: rgba(248,113,113,.12); color: var(--red); }
+.tag.design { background: rgba(167,139,250,.12); color: var(--purple); }
+.tag.data { background: rgba(52,211,153,.12); color: var(--green); }
+
+@media (max-width: 600px) {
+  header h1 { font-size: 1.8rem; }
+  .steps .label { font-size: .7rem; }
+  .repo-info .name { font-size: .95rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>⭐ Star 解锁</h1>
+    <p>给 HOMO 开源项目点 Star，解锁独家数据 / 工具 / 模板</p>
+    <div class="stats">
+      <span>📦 <strong id="repoCount">12</strong> 个仓库</span>
+      <span>🔓 <strong id="unlockCount">12</strong> 份独家内容</span>
+    </div>
+  </header>
+
+  <!-- Step Progress -->
+  <div class="steps">
+    <div class="step active" id="step1">
+      <div class="num">1</div>
+      <div class="label">选择仓库</div>
+    </div>
+    <div class="step" id="step2">
+      <div class="num">2</div>
+      <div class="label">验证 Star</div>
+    </div>
+    <div class="step" id="step3">
+      <div class="num">3</div>
+      <div class="label">获取内容</div>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card">
+    <div class="form-group">
+      <label for="repoSelect">📁 选择要解锁的仓库</label>
+      <select id="repoSelect" onchange="onRepoChange()"></select>
+    </div>
+
+    <div class="form-group">
+      <label for="username">👤 你的 GitHub 用户名</label>
+      <input type="text" id="username" placeholder="例如: sevenliuhu" onkeydown="if(event.key==='Enter') checkStar()">
+    </div>
+
+    <button class="btn btn-primary btn-block" id="checkBtn" onclick="checkStar()">
+      🔓 验证并解锁
+    </button>
+  </div>
+
+  <!-- Status Messages -->
+  <div class="status" id="loadingStatus">
+    <div class="icon">⏳</div>
+    <h3>正在验证...</h3>
+    <p>正在查询 GitHub API，检查你是否点过 Star</p>
+  </div>
+
+  <div class="status error" id="errorStatus">
+    <div class="icon">❌</div>
+    <h3 id="errorTitle">验证失败</h3>
+    <p id="errorMsg">请检查用户名是否正确，然后重试</p>
+  </div>
+
+  <!-- Guide: Go Star First -->
+  <div class="status error" id="guideStatus">
+    <div class="icon">⭐</div>
+    <h3 id="guideTitle">你还没有点 Star</h3>
+    <p id="guideMsg">点击下方按钮前往仓库点 Star，然后回来重新验证</p>
+    <a class="btn btn-gold" id="starLink" href="#" target="_blank">⭐ 去点 Star</a>
+    <p style="margin-top: .8rem; font-size: .8rem; color: var(--muted);">点完 Star 后回来，再次点击「验证并解锁」</p>
+  </div>
+
+  <!-- Success: Unlocked Content -->
+  <div class="card unlock-content" id="unlockPanel">
+    <div class="status success show fade-in">
+      <div class="icon">🎉</div>
+      <h3>解锁成功！</h3>
+      <p>感谢你的支持，以下是你解锁的独家内容</p>
+    </div>
+
+    <div style="margin: 1rem 0;">
+      <h3 id="unlockTitle" style="margin-bottom: .5rem;"></h3>
+      <p id="unlockDesc" style="color: var(--muted); font-size: .9rem; margin-bottom: 1rem;"></p>
+      <div class="tags" id="unlockTags"></div>
+
+      <div style="margin-top: 1rem;">
+        <pre id="unlockCode"></pre>
+      </div>
+
+      <p style="margin-top: .8rem; font-size: .8rem; color: var(--muted);">
+        💡 复制上述内容使用 · 更多仓库请返回顶部重新选择
+      </p>
+    </div>
+  </div>
+
+  <footer>
+    <p>HOMO · 智能体操作系统 | 商业合作: 16208204@qq.com</p>
+    <p style="margin-top: .3rem;">
+      <a href="https://github.com/sevenliuhu" style="color: #475569; text-decoration: none;">GitHub</a>
+    </p>
+  </footer>
+</div>
+
+<script>
+// ═══ 仓库配置 ═══
+const REPOS = [
+  {
+    id: 'homo-open-design',
+    name: 'homo-open-design',
+    fullName: '🎨 开源设计引擎中文版',
+    stars: '49k',
+    tags: ['设计', 'Agent'],
+    tagClass: ['design', 'design'],
+    unlockTitle: '🎨 134技能索引导航',
+    unlockDesc: 'Open Design 全部134个设计技能的索引目录 + 分类导航，快速定位你需要的设计能力',
+    unlockData: `# 🎨 HOMO Open Design · 134 技能索引\n\n## 📂 品牌与标识 (12个)\n- brand-guidelines · 品牌指南创建\n- creative-director · 创意指导\n- color-expert · 色彩专家\n- typography · 排版设计\n\n## 📂 内容创作 (18个)\n- copywriting · 文案写作\n- article-magazine · 杂志文章\n- brainstorming · 头脑风暴\n- storyboarding · 故事板\n\n## 📂 视觉设计 (24个)\n- canvas-design · 画布设计\n- poster-design · 海报设计\n- card-twitter · 推文卡片\n- card-xiaohongshu · 小红书卡片\n\n## 📂 原型与交互 (15个)\n- wireframe · 线框图\n- prototype · 交互原型\n- app-design · App设计\n\n## 📂 电商物料 (8个)\n- ecommerce-main · 商品主图\n- product-detail · 详情页\n- promotion-banner · 促销海报\n- seckill-page · 秒杀页面\n\n👉 完整版见 GitHub 仓库 skills/ 目录`
+  },
+  {
+    id: 'homo-mempalace',
+    name: 'homo-mempalace',
+    fullName: '🧠 DeepSeek版AI记忆系统',
+    stars: '52k',
+    tags: ['AI', '记忆'],
+    tagClass: ['data', 'data'],
+    unlockTitle: '🧠 Wing-Room-Drawer 配置模板',
+    unlockDesc: 'AI记忆系统的最佳实践配置——直接可用的Wing-Room-Drawer三层架构YAML配置',
+    unlockData: `# 🧠 HOMO MemPalace · 记忆系统配置模板\n\n# Wing-Room-Drawer 三层架构\n\n## 🏗️ Wing 配置 (人/项目级)\nwing:\n  name: \"my-agent\"\n  description: \"我的AI助手记忆空间\"\n  type: \"personal\"\n  backend: \"chromadb\"\n  embedding: \"deepseek-embedding\"\n\n## 🚪 Room 配置 (时间线/主题级)\nroom:\n  template: \"daily\"\n  auto_create: true\n  max_rooms: 365\n  naming: \"YYYY-MM-DD\"\n\n## 🗄️ Drawer 配置 (原始文本级)\ndrawer:\n  storage: \"full-text\"\n  no_summary: true\n  no_paraphrase: true\n  no_compression: true\n\n## 📇 AAAK 索引配置\nindex:\n  type: \"aaak\"\n  llm_scanable: true\n  auto_reindex: \"every_10_items\"\n\n## 🔧 MCP 工具 (29个)\nmcp_tools:\n  enabled: true\n  read: 8\n  knowledge_graph: 5\n  write: 4\n  search: 7\n  diary: 2\n  misc: 3`
+  },
+  {
+    id: 'homo-gbrain',
+    name: 'homo-gbrain',
+    fullName: '🧠 自连线知识图谱引擎',
+    stars: '18k',
+    tags: ['知识图谱', 'OpenClaw'],
+    tagClass: ['data', 'design'],
+    unlockTitle: '📊 知识图谱 Schema 模板',
+    unlockDesc: '自连线知识图谱的完整SQLite Schema——12张表的结构化知识存储方案',
+    unlockData: `-- 🧠 HOMO GBrain · SQLite Schema 模板\n-- 自连线知识图谱核心表结构\n\n-- 页面表\nCREATE TABLE pages (\n    id TEXT PRIMARY KEY,\n    title TEXT NOT NULL,\n    content TEXT,\n    created_at TEXT,\n    updated_at TEXT\n);\n\n-- 链接关系表（自连线核心）\nCREATE TABLE links (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    source_page_id TEXT REFERENCES pages(id),\n    target_page_id TEXT REFERENCES pages(id),\n    relation_type TEXT,\n    created_at TEXT\n);\n\n-- 实体引用表\nCREATE TABLE entities (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT UNIQUE NOT NULL,\n    type TEXT,\n    aliases TEXT\n);\n\n-- 知识事实表\nCREATE TABLE facts (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    subject_id INTEGER REFERENCES entities(id),\n    predicate TEXT,\n    object_id INTEGER REFERENCES entities(id),\n    valid_from TEXT,\n    valid_to TEXT\n);\n\n-- 全文搜索\nCREATE VIRTUAL TABLE pages_fts USING fts5(title, content);\n\n-- 作业队列（Minions）\nCREATE TABLE jobs (\n    id TEXT PRIMARY KEY,\n    type TEXT,\n    status TEXT DEFAULT 'pending',\n    payload TEXT,\n    created_at TEXT,\n    completed_at TEXT\n);`
+  },
+  {
+    id: 'homo-graphify',
+    name: 'homo-graphify',
+    fullName: '📊 一键代码知识图谱',
+    stars: '50k',
+    tags: ['代码分析', '可视化'],
+    tagClass: ['data', 'design'],
+    unlockTitle: '📊 代码分析配置示例',
+    unlockDesc: 'graphify 的中文代码分析配置——适配 DeepSeek 等国产 LLM 的完整配置模板',
+    unlockData: `# 📊 HOMO Graphify · 代码分析配置\n\n# 国产LLM后端配置\n[llm]\nbackend = \"deepseek\"\nmodel = \"deepseek-chat\"\napi_key = \"${DEEPSEEK_API_KEY}\"\nbase_url = \"https://api.deepseek.com\"\n\n# 可选后端\n# backend = \"kimi\"    # Moonshot Kimi\n# backend = \"qwen\"    # 通义千问\n# backend = \"glm\"     # 智谱 GLM\n# backend = \"yiyan\"   # 文心一言\n\n# 中文增强配置\n[chinese]\nenabled = true\nidentifiers = true      # 中文标识符识别\ncomments = true         # 中文注释分析\nsegmenter = \"jieba\"     # 中文分词\n\n# 输出配置\n[output]\nformat = \"html\"\ngraph_type = \"force-directed\"\ninclude_source = true\n\n# 一键运行\n# homo-graphify extract . --backend deepseek`
+  },
+  {
+    id: 'homo-sales-scorer',
+    name: 'homo-sales-scorer',
+    fullName: '🤖 AI销售客户评分引擎',
+    stars: '46k',
+    tags: ['销售', '评分'],
+    tagClass: ['ecom', 'data'],
+    unlockTitle: '📋 客户评分卡模板',
+    unlockDesc: '10维度A-F客户价值评分卡——可直接用于销售团队的客户评估流程',
+    unlockData: `# 🤖 HOMO Sales Scorer · 客户评分卡\n\n## 📊 10维度 A-F 评分\n\n### 1. 客户画像 (权重:15%)\n- 企业规模: 微型/小型/中型/大型/巨型\n- 行业匹配度: 低/中/高\n- 决策链完整度: 1-5分\n\n### 2. 预算评估 (权重:15%)\n- 预算范围: <5w/5-20w/20-100w/100w+\n- 采购周期: 立即/1-3月/3-6月/6月+\n- 付款能力: 差/一般/良好/优秀\n\n### 3. 竞争态势 (权重:10%)\n- 竞品使用: A/B/C/无\n- 切换成本: 低/中/高\n- 独特价值匹配度: 1-5分\n\n### 4. 需求紧迫度 (权重:15%)\n- 问题严重性: 1-5分\n- 已有解决方案: 无/部分/有\n- 决策时间线: 1-5分\n\n### 评分公式\n总分 = Σ(维度分 × 权重) \nA: ≥90 · B: 75-89 · C: 60-74 · D: 45-59 · E: 30-44 · F: <30`
+  },
+  {
+    id: 'homo-html-anything',
+    name: 'homo-html-anything',
+    fullName: '📄 电商AI物料生成器',
+    stars: '4.5k',
+    tags: ['电商', 'HTML'],
+    tagClass: ['ecom', 'design'],
+    unlockTitle: '📄 电商SKILL模板包',
+    unlockDesc: '可直接使用的7个电商物料SKILL模板——小红书卡片/抖音/微信/秒杀/商品详情',
+    unlockData: `# 📄 HOMO HTML Anything · 电商SKILL模板\n\n## 📱 小红书商品卡片\n- 模板: xiaohongshu-product-card\n- 输出: 9:16竖版HTML\n- 适用: 商品种草/测评\n\n## 🎵 抖音直播预告\n- 模板: douyin-deck\n- 输出: 动态HTML Deck\n- 适用: 直播预热/商品预告\n\n## 💬 微信公众号文章\n- 模板: wechat-article\n- 输出: 微信兼容HTML\n- 适用: 产品推文/品牌故事\n\n## 🏪 电商商品详情\n- 模板: shop-detail\n- 输出: 详情页HTML\n- 适用: 天猫/京东/拼多多\n\n## ⚡ 秒杀促销页\n- 模板: seckill-promotion\n- 输出: 倒计时+CTA页面\n- 适用: 限时抢购/大促\n\n## 🖼️ 电商动效Banner\n- 模板: ecommerce-animated-banner\n- 输出: CSS动画Banner\n- 适用: 首页大促/品牌推广\n\n## 🛒 SKU直投页\n- 模板: sku-direct-product\n- 输出: 单品直达页\n- 适用: 信息流广告落地页`
+  },
+  {
+    id: 'homo-huashu-design',
+    name: 'homo-huashu-design',
+    fullName: '🎨 中文企业设计技能',
+    stars: '14k',
+    tags: ['设计', '品牌'],
+    tagClass: ['design', 'design'],
+    unlockTitle: '🎨 中国风设计色彩系统',
+    unlockDesc: '25种设计风格中的5种中国风色彩的完整色板+排版规范',
+    unlockData: `# 🎨 HOMO 中国风设计色板\n\n## 🐉 东方国潮 (花西子/观夏/霸王茶姬)\n主色:    #C41E3A · 胭脂红\n辅色:    #1A1A1A · 墨黑\n强调色:  #C5A55A · 泥金\n背景:    #F5F0EB · 宣纸白\n字体:    思源宋体 / 站酷文艺体\n关键词: 雅致 · 东方 · 传统 · 高端\n\n## 🏢 大厂风 (微信/飞书/蚂蚁)\n主色:    #2563EB · 科技蓝\n辅色:    #64748B · 石板灰\n强调色:  #06B6D4 · 青色\n背景:    #F8FAFC · 极浅灰\n字体:    思源黑体 / Inter\n关键词: 简洁 · 高效 · 现代 · 专业\n\n## 📱 社交美学 (小红书/抖音)\n主色:    #FF2442 · 小红书红\n辅色:    #1E1E1E · 纯黑\n强调色:  #FE2C55 · 抖音粉\n背景:    #FFFFFF · 纯白\n字体:    苹方 / Noto Sans SC\n关键词: 年轻 · 活力 · 潮流 · UGC\n\n## 🛒 电商直击 (天猫/拼多多)\n主色:    #FF0036 · 天猫红\n辅色:    #FFD100 · 拼多多黄\n强调色:  #FF6A00 · 促销橙\n背景:    #FFFFFF · 纯白\n字体:    阿里巴巴普惠体\n关键词: 促销 · 紧迫 · 信任 · 转化\n\n## 🎤 中式发布会 (华为/小米)\n主色:    #0A0A0A · 深空黑\n辅色:    #D4D4D8 · 冷灰\n强调色:  #2563EB · 科技蓝\n背景:    #080808 · 纯黑\n字体:    华为HarmonyOS Sans\n关键词: 专业 · 沉浸 · 大气 · 科技`
+  },
+  {
+    id: 'homo-image-prompts',
+    name: 'homo-image-prompts',
+    fullName: '🖼️ 中文AI图片提示词',
+    stars: '15k',
+    tags: ['AI', '图片'],
+    tagClass: ['data', 'design'],
+    unlockTitle: '🖼️ 50条电商AI提示词',
+    unlockDesc: '精选50条电商场景AI图片生成提示词（适配GPT-Image-2 + 国产API）',
+    unlockData: `# 🖼️ 电商AI图片提示词 (50条精选)\n\n## 🛒 商品主图 (10条)\n1. Professional product photography of [item], soft studio lighting, clean white background, 8K detail, commercial photography\n2. [Product] on minimalist podium, dramatic side lighting, gradient background, luxury brand aesthetic\n\n## 🎨 营销海报 (10条)\n1. Spring festival sale poster, red and gold color scheme, Chinese cloud patterns, discount badges, 3D product render\n2. E-commerce banner, gradient background, floating product elements, promotional text frame, CTA button\n\n## 👤 模特场景 (10条)\n1. Asian female model holding [product], casual lifestyle setting, natural morning light, warm tones\n2. Product in use lifestyle photo, cozy home environment, soft window light, authentic feel\n\n## 🎭 品牌形象 (10条)\n1. Brand product lineup, minimalist flat lay composition, pastel background, elegant shadow\n2. Product hero shot, dramatic lighting, dark moody background, premium texture\n\n## 📱 社交媒体 (10条)\n1. Instagram-style product flat lay, natural elements, morning coffee aesthetic, warm filter\n2. Unboxing experience photo, product packaging focus, storytelling composition`
+  },
+  {
+    id: 'homo-design-spec',
+    name: 'homo-design-spec',
+    fullName: '📐 品牌视觉规范 DESIGN.md',
+    stars: '14k',
+    tags: ['规范', '设计系统'],
+    tagClass: ['design', 'data'],
+    unlockTitle: '📐 DESIGN.md 完整规范',
+    unlockDesc: 'Google Labs 风格品牌视觉描述规范的完整YAML模板+工具链配置',
+    unlockData: `# 📐 DESIGN.md 完整规范模板\n\n# ═══ YAML 前端: 设计令牌 ═══\n---\nbrand:\n  name: \"YOUR_BRAND\"\n  tagline: \"品牌标语\"\n\ncolors:\n  primary: \"#2563EB\"\n  primary_hover: \"#1D4ED8\"\n  secondary: \"#8B5CF6\"\n  accent: \"#F59E0B\"\n  success: \"#10B981\"\n  warning: \"#F59E0B\"\n  error: \"#EF4444\"\n  background:\n    light: \"#FFFFFF\"\n    dark: \"#0F172A\"\n  text:\n    primary: \"#1E293B\"\n    secondary: \"#64748B\"\n    inverse: \"#FFFFFF\"\n\ntypography:\n  sans: \"'Inter', system-ui, sans-serif\"\n  mono: \"'JetBrains Mono', monospace\"\n  scale: [12, 14, 16, 18, 20, 24, 30, 36, 48, 60, 72]\n\nspacing:\n  unit: 4\n  scale: [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64]\n\nborder:\n  radius:\n    sm: 4\n    md: 8\n    lg: 12\n    xl: 16\n    full: 9999\n\nbreakpoints:\n  sm: 640\n  md: 768\n  lg: 1024\n  xl: 1280\n---\n\n# Markdown 正文: 设计原理\n## 品牌定位\n## 色彩使用规范\n## 排版层级\n## 组件库\n## 无障碍说明`
+  },
+  {
+    id: 'homo-stock-advisor',
+    name: 'homo-stock-advisor',
+    fullName: '📈 A股量化分析工具',
+    stars: '0',
+    tags: ['股票', '量化'],
+    tagClass: ['data', 'data'],
+    unlockTitle: '📈 A股量化分析模板',
+    unlockDesc: '基于A股市场的技术指标分析模板——均线策略/RSI/布林带完整代码',
+    unlockData: `# 📈 A股量化分析模板\n\n# 均线交叉策略\nimport pandas as pd\nimport numpy as np\n\ndef ma_cross_strategy(df, short=5, long=20):\n    \"\"\"\n    均线交叉策略\n    short: 短期均线周期(默认5日)\n    long: 长期均线周期(默认20日)\n    \"\"\"\n    df['MA_short'] = df['close'].rolling(short).mean()\n    df['MA_long'] = df['close'].rolling(long).mean()\n    \n    # 金叉买入，死叉卖出\n    df['signal'] = 0\n    df.loc[df['MA_short'] > df['MA_long'], 'signal'] = 1\n    df.loc[df['MA_short'] <= df['MA_long'], 'signal'] = -1\n    \n    # 信号变化点\n    df['position'] = df['signal'].diff()\n    \n    return df\n\n# RSI指标\ndef calculate_rsi(df, period=14):\n    delta = df['close'].diff()\n    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()\n    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()\n    rs = gain / loss\n    df['RSI'] = 100 - (100 / (1 + rs))\n    return df\n\n# 布林带\ndef bollinger_bands(df, period=20, std=2):\n    df['BB_middle'] = df['close'].rolling(period).mean()\n    bb_std = df['close'].rolling(period).std()\n    df['BB_upper'] = df['BB_middle'] + std * bb_std\n    df['BB_lower'] = df['BB_middle'] - std * bb_std\n    return df`
+  },
+  {
+    id: 'homo-cloaked-playwright',
+    name: 'homo-cloaked-playwright',
+    fullName: '🕵️ Chromium隐身浏览器',
+    stars: '0',
+    tags: ['反爬', '浏览器'],
+    tagClass: ['sec', 'sec'],
+    unlockTitle: '🕵️ 反爬指纹规则集',
+    unlockDesc: '绕过常见反爬检测的浏览器指纹配置规则——WebDriver/navigator/WebGL等全部伪装参数',
+    unlockData: `# 🕵️ 反爬指纹伪装规则集\n\n# ═══ WebDriver 伪装 ═══\ncdp: {\n  \"Page.addScriptToEvaluateOnNewDocument\": {\n    source: `\n      Object.defineProperty(navigator, 'webdriver', { get: () => false });\n      Object.defineProperty(navigator, 'plugins', { get: () => [1,2,3,4,5] });\n      Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh'] });\n      window.chrome = { runtime: {} };\n    `\n  }\n}\n\n# ═══ Canvas 指纹 ═══\ncanvas_noise: {\n  enabled: true,\n  perlin: 0.001,\n  seed: random()\n}\n\n# ═══ WebGL 伪装 ═══\nwebgl: {\n  vendor: \"Google Inc. (Intel)\",\n  renderer: \"ANGLE (Intel, Intel(R) UHD Graphics (0x0000A7A0) Direct3D11)\",\n  unmasked_vendor: \"Intel\",\n  unmasked_renderer: \"Intel(R) UHD Graphics\"\n}\n\n# ═══ 屏幕/视口 ═══\nscreen: {\n  width: 1920,\n  height: 1080,\n  colorDepth: 24,\n  pixelDepth: 24\n}\n\n# ═══ 音频指纹 ═══\naudio_noise: {\n  enabled: true,\n  fft_noise: 0.0001\n}`
+  },
+  {
+    id: 'homo-skyvern-integration',
+    name: 'homo-skyvern-integration',
+    fullName: '🤖 电商自动化工作流',
+    stars: '0',
+    tags: ['电商', '自动化'],
+    tagClass: ['ecom', 'sec'],
+    unlockTitle: '🤖 电商全自动工作流',
+    unlockDesc: '从选品→上架→订单→售后的全链路电商AI自动化工作流配置',
+    unlockData: `# 🤖 电商自动化工作流\n\n# 选品 → 上架 → 订单 → 售后 全链路\n\n## 1. 选品模块\n- 竞品监控: 每日扫描Top100商品\n- 蓝海分析: 高需求-低竞争品类筛选\n- 利润计算: 成本×售价×佣金=净利\n\n## 2. 上架模块\n- 标题生成: 关键词组合+SEO优化\n- 详情页: 结构化描述+卖点提炼\n- 图片处理: 主图/详情图/场景图\n\n## 3. 订单模块\n- 自动接单: 订单实时同步\n- 库存预警: <安全库存自动提醒\n- 物流追踪: 快递API批量查询\n\n## 4. 售后模块\n- 退货分析: 退货原因NLP分类\n- 客服自动回复: 常见问题模板化\n- 评分监控: 低分预警+跟进\n\n## 自动化节点\nflow:\n  - trigger: \"新品上架\"\n    actions:\n      - generate_title\n      - create_detail_page\n      - set_price\n      - push_to_store\n  - trigger: \"新订单\"\n    actions:\n      - confirm_order\n      - notify_warehouse\n      - update_inventory`
+  }
+];
+
+// ═══ 页面初始化 ═══
+function init() {
+  const sel = document.getElementById('repoSelect');
+  REPOS.forEach((r, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${r.name} · ${r.fullName}`;
+    sel.appendChild(opt);
+  });
+  document.getElementById('repoCount').textContent = REPOS.length;
+  document.getElementById('unlockCount').textContent = REPOS.length;
+  onRepoChange();
+}
+
+// ═══ 仓库切换 ═══
+function onRepoChange() {
+  const idx = parseInt(document.getElementById('repoSelect').value);
+  const repo = REPOS[idx];
+  
+  // Update repo info
+  const card = document.querySelector('.card');
+  let infoDiv = document.getElementById('repoInfoDisplay');
+  if (!infoDiv) {
+    infoDiv = document.createElement('div');
+    infoDiv.id = 'repoInfoDisplay';
+    card.insertBefore(infoDiv, card.querySelector('.form-group'));
+  }
+  
+  let tags = repo.tags.map((t, i) => `<span class="tag ${repo.tagClass[i] || ''}">${t}</span>`).join('');
+  infoDiv.innerHTML = `
+    <div class="repo-info">
+      <div style="flex:1">
+        <div class="name">${repo.fullName}</div>
+        <div style="color: var(--muted); font-size: .85rem;">${repo.id}</div>
+        <div class="tags" style="margin-top: .3rem;">${tags}</div>
+      </div>
+      <div class="stars">⭐ ${repo.stars}</div>
+    </div>
+  `;
+  
+  // Reset UI
+  resetUI();
+}
+
+function resetUI() {
+  document.getElementById('loadingStatus').classList.remove('show');
+  document.getElementById('errorStatus').classList.remove('show');
+  document.getElementById('guideStatus').classList.remove('show');
+  document.getElementById('unlockPanel').classList.remove('show');
+  document.getElementById('step1').className = 'step active';
+  document.getElementById('step2').className = 'step';
+  document.getElementById('step3').className = 'step';
+  document.getElementById('checkBtn').disabled = false;
+  document.getElementById('checkBtn').innerHTML = '🔓 验证并解锁';
+}
+
+// ═══ 核心: 检查Star ═══
+async function checkStar() {
+  const idx = parseInt(document.getElementById('repoSelect').value);
+  const repo = REPOS[idx];
+  const username = document.getElementById('username').value.trim();
+  
+  if (!username) {
+    showError('请输入GitHub用户名', '请输入你的GitHub用户名后再试');
+    return;
+  }
+  
+  // Show loading
+  document.getElementById('loadingStatus').classList.add('show');
+  document.getElementById('errorStatus').classList.remove('show');
+  document.getElementById('guideStatus').classList.remove('show');
+  document.getElementById('unlockPanel').classList.remove('show');
+  document.getElementById('step1').className = 'step done';
+  document.getElementById('step2').className = 'step active';
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('checkBtn').innerHTML = '⏳ 验证中...';
+  
+  try {
+    // 查询stargazers - 遍历分页
+    const owner = 'sevenliuhu';
+    const repoName = repo.name;
+    let page = 1;
+    let starred = false;
+    
+    while (!starred) {
+      const url = `https://api.github.com/repos/${owner}/${repoName}/stargazers?per_page=100&page=${page}`;
+      const resp = await fetch(url, {
+        headers: { 'Accept': 'application/vnd.github.v3+json' }
+      });
+      
+      if (!resp.ok) {
+        throw new Error(`GitHub API返回 ${resp.status}`);
+      }
+      
+      const data = await resp.json();
+      
+      // Check if user is in this page
+      starred = data.some(u => u.login.toLowerCase() === username.toLowerCase());
+      
+      // Check if there are more pages
+      const link = resp.headers.get('Link');
+      if (!link || !link.includes('rel="next"') || starred) break;
+      page++;
+      
+      // Safety: max 10 pages (1000 stargazers)
+      if (page > 10) break;
+    }
+    
+    document.getElementById('step2').className = 'step done';
+    document.getElementById('loadingStatus').classList.remove('show');
+    
+    if (starred) {
+      // ✅ Starred - show unlock content
+      showUnlock(repo);
+    } else {
+      // ❌ Not starred - show guide
+      showGuide(repo);
+    }
+  } catch (err) {
+    document.getElementById('loadingStatus').classList.remove('show');
+    showError('验证失败', err.message);
+  } finally {
+    document.getElementById('checkBtn').disabled = false;
+    document.getElementById('checkBtn').innerHTML = '🔓 验证并解锁';
+  }
+}
+
+function showUnlock(repo) {
+  document.getElementById('guideStatus').classList.remove('show');
+  document.getElementById('errorStatus').classList.remove('show');
+  document.getElementById('step3').className = 'step active';
+  
+  document.getElementById('unlockTitle').textContent = repo.unlockTitle;
+  document.getElementById('unlockDesc').textContent = repo.unlockDesc;
+  
+  let tags = repo.tags.map((t, i) => `<span class="tag ${repo.tagClass[i] || ''}">${t}</span>`).join('');
+  document.getElementById('unlockTags').innerHTML = tags;
+  document.getElementById('unlockCode').textContent = repo.unlockData;
+  
+  document.getElementById('unlockPanel').classList.add('show');
+  
+  // Scroll to content
+  document.getElementById('unlockPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function showGuide(repo) {
+  document.getElementById('guideStatus').classList.add('show');
+  document.getElementById('guideTitle').textContent = `⭐ 你还没有给 ${repo.name} 点 Star`;
+  document.getElementById('guideMsg').textContent = `点 Star 后，即可解锁: ${repo.unlockTitle}`;
+  document.getElementById('starLink').href = `https://github.com/sevenliuhu/${repo.name}`;
+}
+
+function showError(title, msg) {
+  document.getElementById('errorStatus').classList.add('show');
+  document.getElementById('errorTitle').textContent = title;
+  document.getElementById('errorMsg').textContent = msg;
+}
+
+// ═══ 启动 ═══
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
