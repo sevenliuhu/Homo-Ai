@@ -281,23 +281,16 @@ footer { text-align: center; padding: 2rem; color: #475569; font-size: .8rem; }
     };
     
     try {
-      // 使用Formspree转发（免费，无需注册账号即可接收邮件到指定邮箱）
-      const resp = await fetch("https://formspree.io/f/xjkyqzjy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify(data)
-      });
+      // 打开邮件客户端，预填咨询内容
+      const mailBody = "邮箱: " + data.email + "\n项目: " + data.repo + "\n留言: " + data.message;
+      window.location.href = "mailto:16208204@qq.com?subject=[HOMO商业授权]%20" + 
+        encodeURIComponent(data.repo) + "&body=" + encodeURIComponent(mailBody);
       
-      if (resp.ok) {
-        form.style.display = "none";
-        status.style.display = "block";
-      } else {
-        throw new Error("提交失败");
-      }
+      // 显示提交成功
+      form.style.display = "none";
+      status.style.display = "block";
     } catch(e) {
-      // Fallback: mailto
-      window.location.href = "mailto:16208204@qq.com?subject=[HOMO商业授权]&body=" + 
-        encodeURIComponent("邮箱: " + data.email + "\n项目: " + data.repo + "\n留言: " + data.message);
+      // Fallback
       btn.innerHTML = "📧 发送授权咨询";
       btn.disabled = false;
     }
