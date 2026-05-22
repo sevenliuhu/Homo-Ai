@@ -216,6 +216,94 @@ footer { text-align: center; padding: 2rem; color: #475569; font-size: .8rem; }
     </div>
   </div>
 
+  
+  <!-- ═══ 商业授权表单 ═══ -->
+  <div class="card" id="licenseSection" style="margin-top: 1.5rem; border: 1px solid rgba(167,139,250,.3);">
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <h2 style="color: var(--purple);">📜 获取商业授权</h2>
+      <p style="color: var(--muted); font-size: .9rem;">需要将 HOMO 开源项目用于商业项目？填写表单，我们会将付款信息和定价说明发送到你的邮箱</p>
+    </div>
+    <form id="licenseForm" onsubmit="submitLicense(event)">
+      <div class="form-group">
+        <label for="licenseEmail">📧 你的邮箱</label>
+        <input type="email" id="licenseEmail" required placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label for="licenseRepo">📦 需要授权的项目</label>
+        <select id="licenseRepo">
+          <option value="all">全部 HOMO 项目（推荐）</option>
+          <option value="homo-open-design">homo-open-design · 设计引擎</option>
+          <option value="homo-mempalace">homo-mempalace · 记忆系统</option>
+          <option value="homo-gbrain">homo-gbrain · 知识图谱</option>
+          <option value="homo-graphify">homo-graphify · 代码分析</option>
+          <option value="homo-sales-scorer">homo-sales-scorer · 销售评分</option>
+          <option value="homo-html-anything">homo-html-anything · 电商物料</option>
+          <option value="homo-huashu-design">homo-huashu-design · 设计技能</option>
+          <option value="homo-stock-advisor">homo-stock-advisor · 量化分析</option>
+          <option value="homo-cloaked-playwright">homo-cloaked-playwright · 反爬</option>
+          <option value="homo-skyvern-integration">homo-skyvern-integration · 电商自动化</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="licenseMsg">💬 留言（可选）</label>
+        <textarea id="licenseMsg" rows="3" style="width:100%;padding:.8rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.9rem;resize:vertical;" placeholder="描述你的使用场景，以便我们提供最合适的授权方案"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="licenseBtn" style="background: var(--purple);">
+        📧 发送授权咨询
+      </button>
+    </form>
+    <div id="licenseStatus" style="display:none;text-align:center;padding:1.5rem;">
+      <div style="font-size:2rem;margin-bottom:.5rem;">✅</div>
+      <h3 style="color:var(--green);">已提交！</h3>
+      <p style="color:var(--muted);">我们会尽快将付款信息和定价说明发送到你的邮箱</p>
+    </div>
+    <p style="text-align:center;margin-top:1rem;font-size:.8rem;color:#475569;">
+      或直接发邮件至 <a href="mailto:16208204@qq.com" style="color:var(--blue);">16208204@qq.com</a> 咨询
+    </p>
+  </div>
+
+  <script>
+  // ═══ 商业授权表单提交 ═══
+  async function submitLicense(event) {
+    event.preventDefault();
+    const btn = document.getElementById("licenseBtn");
+    const form = document.getElementById("licenseForm");
+    const status = document.getElementById("licenseStatus");
+    
+    btn.disabled = true;
+    btn.innerHTML = "⏳ 发送中...";
+    
+    const data = {
+      email: document.getElementById("licenseEmail").value,
+      repo: document.getElementById("licenseRepo").value,
+      message: document.getElementById("licenseMsg").value,
+      _subject: "[HOMO商业授权] 新咨询"
+    };
+    
+    try {
+      // 使用Formspree转发（免费，无需注册账号即可接收邮件到指定邮箱）
+      const resp = await fetch("https://formspree.io/f/xjkyqzjy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(data)
+      });
+      
+      if (resp.ok) {
+        form.style.display = "none";
+        status.style.display = "block";
+      } else {
+        throw new Error("提交失败");
+      }
+    } catch(e) {
+      // Fallback: mailto
+      window.location.href = "mailto:16208204@qq.com?subject=[HOMO商业授权]&body=" + 
+        encodeURIComponent("邮箱: " + data.email + "\n项目: " + data.repo + "\n留言: " + data.message);
+      btn.innerHTML = "📧 发送授权咨询";
+      btn.disabled = false;
+    }
+  }
+  </script>
+
   <footer>
     <p>HOMO · 智能体操作系统 | 商业合作: 16208204@qq.com</p>
     <p style="margin-top: .3rem;">
